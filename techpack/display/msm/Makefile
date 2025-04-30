@@ -83,13 +83,14 @@ msm_drm-$(CONFIG_DRM_MSM_SDE) += sde/sde_crtc.o \
 	sde_dsc_helper.o \
 	sde_vdc_helper.o \
 	sde/sde_hw_rc.o \
-	sde_dbg.o \
-	sde_dbg_evtlog.o \
 
 msm_drm-$(CONFIG_DRM_SDE_VM) += sde/sde_vm_common.o \
 	sde/sde_vm_primary.o \
 	sde/sde_vm_trusted.o \
 	sde/sde_vm_msgq.o
+
+msm_drm-$(CONFIG_DEBUG_FS) += sde_dbg.o \
+	sde_dbg_evtlog.o \
 
 msm_drm-$(CONFIG_DRM_SDE_WB) += sde/sde_wb.o \
 	sde/sde_encoder_phys_wb.o
@@ -101,11 +102,9 @@ msm_drm-$(CONFIG_DRM_SDE_RSC) += sde_rsc.o \
 msm_drm-$(CONFIG_DRM_MSM_DSI) += dsi/dsi_phy.o \
 	dsi/dsi_pwr.o \
 	dsi/dsi_phy.o \
-	dsi/dsi_phy_hw_v2_0.o \
 	dsi/dsi_phy_hw_v3_0.o \
 	dsi/dsi_phy_hw_v4_0.o \
 	dsi/dsi_phy_timing_calc.o \
-	dsi/dsi_phy_timing_v2_0.o \
 	dsi/dsi_phy_timing_v3_0.o \
 	dsi/dsi_phy_timing_v4_0.o \
 	dsi/dsi_pll.o \

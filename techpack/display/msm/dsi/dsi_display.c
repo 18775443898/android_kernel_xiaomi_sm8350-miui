@@ -4382,8 +4382,12 @@ static int dsi_display_parse_dt(struct dsi_display *display)
 
 	/* Parse all external bridges from port 0 */
 	display_for_each_ctrl(i, display) {
-		display->ext_bridge[i].node_of =
-			of_graph_get_remote_node(of_node, 0, i);
+		if (of_graph_is_present(of_node)) {
+			display->ext_bridge[i].node_of =
+				of_graph_get_remote_node(of_node, 0, i);
+		} else
+			display->ext_bridge[i].node_of = NULL;
+
 		if (display->ext_bridge[i].node_of)
 			display->ext_bridge_cnt++;
 		else
@@ -4441,6 +4445,14 @@ static int dsi_display_res_init(struct dsi_display *display)
 			display->panel->host_config.force_hs_clk_lane;
 		phy->cfg.phy_type =
 			display->panel->host_config.phy_type;
+
+		/*
+		 * Parse the dynamic clock trim codes for PLL, for video mode panels that have
+		 * dynamic clock property set.
+		 */
+		if ((display->panel->dyn_clk_caps.dyn_clk_support) &&
+				(display->panel->panel_mode == DSI_OP_VIDEO_MODE))
+			dsi_phy_pll_parse_dfps_data(phy);
 	}
 
 	rc = dsi_display_parse_lane_map(display);
@@ -4635,10 +4647,7 @@ void dsi_display_update_byte_intf_div(struct dsi_display *display)
 	config = &display->panel->host_config;
 
 	phy_ver = dsi_phy_get_version(m_ctrl->phy);
-	if (phy_ver <= DSI_PHY_VERSION_2_0)
-		config->byte_intf_clk_div = 1;
-	else
-		config->byte_intf_clk_div = 2;
+	config->byte_intf_clk_div = 2;
 }
 
 static int dsi_display_update_dsi_bitrate(struct dsi_display *display,
@@ -8559,7 +8568,7 @@ int dsi_display_enable(struct dsi_display *display)
 	WRITE_ONCE(cur_refresh_rate, mode->timing.refresh_rate);
 
 	if (mode->dsi_mode_flags & DSI_MODE_FLAG_DMS) {
-		rc = dsi_panel_post_switch(display->panel);
+		rc = dsi_panel_switch(display->panel);
 		if (rc) {
 			DSI_ERR("[%s] failed to switch DSI panel mode, rc=%d\n",
 				   display->name, rc);
@@ -8588,7 +8597,7 @@ int dsi_display_enable(struct dsi_display *display)
 	}
 
 	if (mode->dsi_mode_flags & DSI_MODE_FLAG_DMS) {
-		rc = dsi_panel_switch(display->panel);
+		rc = dsi_panel_post_switch(display->panel);
 		if (rc)
 			DSI_ERR("[%s] failed to switch DSI panel mode, rc=%d\n",
 				   display->name, rc);

@@ -5,6 +5,10 @@
 #ifndef _KGSL_DEBUGFS_H
 #define _KGSL_DEBUGFS_H
 
+struct kgsl_device { 
+    bool set_isdb_breakpoint; // 
+};
+
 struct kgsl_device;
 struct kgsl_process_private;
 
